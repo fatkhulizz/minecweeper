@@ -14,7 +14,7 @@ void printBoard(int sizex, int sizey, bool cek, char x[sizey][sizex]);
 void printBoardBig(int sizex, int sizey, char x[sizey][sizex]);
 char checkMines(int sizex, int sizey, int a, int b, char x[sizey][sizex]);
 void checkAround(int sizex, int sizey, int a, int b, char x[sizey][sizex]);
-void checkArounds(int sizex, int sizey, int a, int b, char x[sizey][sizex]);
+void checkBigger(int sizex, int sizey, int a, int b, char x[sizey][sizex]);
 bool isFinish(int sizex, int sizey, char x[sizey][sizex]);
 
 int main(){
@@ -68,6 +68,7 @@ void generateMines(int sizex, int sizey, int mines, char x[sizey][sizex]){
 }
 
 char checkMines(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
+  //check only one tile, and change the arrary's element to value of total bomb around (0 <= value <= 8) 
   int count = 0;
   for(int i=-1;i<2;i++){
     for(int j=-1;j<2;j++){
@@ -82,6 +83,7 @@ char checkMines(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
 }
 
 void checkAround(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
+  //if selected array's element is zero, check tiles around that element using checkMines's function
   if(x[a][b]=='0'){
     for(int i=-1;i<2;i++){
       for(int j=-1;j<2;j++){
@@ -93,8 +95,10 @@ void checkAround(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
   }
 }
 
-void checkArounds(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
-  /* algorithm to check around
+void checkBigger(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
+  //check tiles around from selected element from nearest to farthest until found non-zero tiles
+  //basically, it's the same as checkAround's function, but bigger scope
+  /* algorithm to check arounds
    * a, b | b+1 ... b+n | b-1 ... b-n
    * a+1, b | b+1 ... b+n | b-1 ... b-n
    * ...
@@ -128,26 +132,27 @@ void checkArounds(int sizex, int sizey, int a, int b, char x[sizey][sizex]){
 }
 
 void askInp(int sizex, int sizey, char x[sizey][sizex]){
+  //ask user input for selecting element and the command, then determine what the output based on input
   int a,b;
   char c;
   scanf("%d %d %c", &b,&a,&c);
   switch (c) {
-    case 'o':
-      if(x[a][b] == MINE){
+    case 'o': 
+      if(x[a][b] == MINE){ //game is over
         printBoard(sizex, sizey, 0, x);
         printf("---");
         for(int i=0; i<(sizex+3)/2;i++) {printf("-");}
-        printf("GAGAL BOS");
+        printf("GAGAL BOS :( ");
         for(int i=0; i<(sizex+3)/2;i++) {printf("-");}
         exit(EXIT_SUCCESS);
       }
-      else {
+      else { //open tiles
         x[a][b] = checkMines(sizex, sizey, a, b, x);
         printf("membuka (%d, %d)\n",b,a);
-        checkArounds(sizex, sizey, a, b, x);
+        checkBigger(sizex, sizey, a, b, x);
       }
       break;
-    case 'f':
+    case 'f': //mark or flag selected element
       if(x[a][b]==CLOSED){x[a][b] = 'f';printf("menandai (%d, %d)\n",b,a);}
       else if (x[a][b]=='f') {x[a][b]=CLOSED;printf("menghapus tanda (%d, %d)\n",b,a);}
       else if (x[a][b]==MINE) {x[a][b]=MINE_FLAGGED;printf("menandai (%d, %d)\n",b,a);}
@@ -159,6 +164,7 @@ void askInp(int sizex, int sizey, char x[sizey][sizex]){
 }
 
 void printBoard(int sizex, int sizey, bool cek, char x[sizey][sizex]){
+  //display the board (all element of array)
   int a=0;
   int b=0;
   printf("  ");
@@ -171,8 +177,8 @@ void printBoard(int sizex, int sizey, bool cek, char x[sizey][sizex]){
     printf("\n%d |",a++);
     if(a == 10) a = 0;
     for(int j=0;j<sizex;j++){
-      if (x[i][j]=='0') {printf(" |");}
-      else if (x[i][j]== MINE && cek == 1) {printf("=|");} //hide mines 
+      if (x[i][j]=='0') {printf(" |");} 
+      else if (x[i][j]== MINE && cek == 1) {printf("=|");} //hide mines. cek's value is controlled in main function 
       else if (x[i][j]==MINE_FLAGGED && cek == 1) {printf("f|");}
       else{printf("%c|",x[i][j]);}
     }
@@ -181,6 +187,8 @@ void printBoard(int sizex, int sizey, bool cek, char x[sizey][sizex]){
 }
 
 void printBoardBig(int sizex, int sizey, char x[sizey][sizex]){
+  //STILL NEED TO FIXED
+  //same as printBoard's function, but bigger size.
   putchar('\n');
   //FIRST UPPER PART 
   //1st line
@@ -209,14 +217,18 @@ void printBoardBig(int sizex, int sizey, char x[sizey][sizex]){
 }
 
 bool isFinish(int sizex, int sizey, char x[sizey][sizex]){
+  //check if all non-bomb tiles is opened
   bool finish=0;
   int count=0;
   for(int i=0;i<sizey;i++){
     for(int j=0;j<sizex;j++){
-      if(x[i][j]==CLOSED) count++;
+      if(x[i][j]==CLOSED || x[i][j]=='f') count++;
     }
   }
-  if(count == 0) finish=1;
+  if(count == 0) {
+    printf("KAMU MENANG :) ");
+    finish=1;
+  }
   return finish;
 }
 
