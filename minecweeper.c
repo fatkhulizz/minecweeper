@@ -135,6 +135,7 @@ void askInp(int sizex, int sizey, char x[sizey][sizex]){
   //ask user input for selecting element and the command, then determine what the output based on input
   int a,b;
   char c;
+  printf("input [<kolom> <baris> <sign: o(open), f(flag)>]: ");
   scanf("%d %d %c", &b,&a,&c);
   switch (c) {
     case 'o': 
@@ -165,6 +166,7 @@ void askInp(int sizex, int sizey, char x[sizey][sizex]){
 
 void printBoard(int sizex, int sizey, bool cek, char x[sizey][sizex]){
   //display the board (all element of array)
+  system("clear||cls");
   int a=0;
   int b=0;
   printf("  ");
